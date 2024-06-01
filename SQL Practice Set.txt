@@ -1,0 +1,83 @@
+1. Consider the following schema of a relational database:
+Customer (cust-id, cust-name, annual-revenue, cust-type) [cust-id needs to maintain a sequence
+starting from 100 and cust-type must be manufacturer, wholesaler, retailer or distributor]
+Truck (truck-no, driver-name)
+City (city-name, population)
+Shipment (shipment-no, cust-id, weight, truck-no, start-city, destination-city). [start-city &
+destination-city both refers to city-name of City table]
+Create table through appropriate SQL commands. Define all integrity constraints and enter sufficient data.
+Write SQL commands for the following queries.
+a) Give the details for those shipments where the start-city and destination-city are same.
+b) Give the driver names who participated in maximum numbers of shipments
+c) Give the name of the city never appears in destination-city.
+d) Give the name of the cities whose population is more the average of all the cities.
+e) Give the shipment details where the starting character of customer name and the last character
+of driver name is ‘A’; 
+
+Solution:-
+
+CREATE DATABASE shipping;
+USE shipping;
+CREATE TABLE customer(
+    cust_id INT PRIMARY KEY,
+    cust_name VARCHAR(50),
+    annual_revenue INT
+    cust_type VARCHAR(50)
+);
+CREATE TABLE truck(
+    truck_no INT PRIMARY KEY,
+    driver_name VARCHAR(50)
+);
+CREATE TABLE city(
+    city_name VARCHAR(50) PRIMARY KEY,
+    population INT
+);
+CREATE TABLE shipment(
+    shipment_no INT PRIMARY KEY,
+    cust_id INT,
+    weight INT,
+    truck_no INT,
+    start_city VARCHAR(50),
+    destination_city VARCHAR(50),
+    FOREIGN KEY(start_city) REFERENCES city(city_name),
+    FOREIGN KEY(destination_city) REFERENCES city(city_name)
+    ON UPDATE CASCADE
+    ON DELETE CASCADE
+);
+
+USE shipping;
+INSERT INTO customer(cust_id, cust_name, annual_revenue, cust_type) VALUES 
+(100, "Rupayan Dirghangi", 37500, "manufacturer"), 
+(101, "Reshmi Dirghangi", 16870, "wholesaler"), 
+(102, "Subhomoy Das", 12, "retailer"), 
+(103, "Aditya Routh", 37500, "manufacturer");
+
+USE shipping;
+INSERT INTO truck(truck_no, driver_name) VALUES 
+(1, "Kalu"),
+(2, "Malu");
+
+USE shipping;
+INSERT INTO city(city_name, population) VALUES 
+("Kolkata", 56000),
+("Mumbai", 80000),
+("Delhi", 40000),
+("Madras", 80000);
+
+USE shipping;
+INSERT INTO shipment(shipment_no, cust_id, weight, truck_no, start_city, destination_city) VALUES 
+(1, 100, 20, 1, "Kolkata", "Madras"),
+(2, 103, 20, 2, "Kolkata", "Mumbai"),
+(3, 101, 40, 2, "Mumbai", "Mumbai");
+
+a) USE shipping;
+SELECT * FROM shipment WHERE start_city = destination_city;
+
+b)USE shipping;
+SELECT driver_name FROM truck WHERE truck_no IN (SELECT truck_no FROM shipment ORDER BY truck_no ASC);
+
+c)USE shipping;
+SELECT city_name FROM city WHERE city_name NOT IN (SELECT destination_city FROM shipment);
+
+d)USE shipping;
+SELECT city_name FROM city WHERE population > (SELECT AVG(population) FROM city);
