@@ -81,3 +81,114 @@ SELECT city_name FROM city WHERE city_name NOT IN (SELECT destination_city FROM 
 
 d)USE shipping;
 SELECT city_name FROM city WHERE population > (SELECT AVG(population) FROM city);
+
+e)USE shipping;
+SELECT * FROM shipment WHERE cust_id IN (SELECT cust_id FROM customer WHERE cust_name="A%") AND truck_no IN (SELECT truck_no FROM truck WHERE driver_name="%A");
+
+
+2. Consider the following schema of a relational database:
+Employee (empno, emp_name, salary, hiredate, city)
+Department (deptno, dname, city)
+Manager (mgrno, deptno, manger_name, salary, hiredate,city)
+Empmgr (empno, mgrno)
+
+Create table through appropriate SQL commands. Define all integrity constraints and enter sufficient data.
+Write SQL commands for the following queries.
+a) Give the employee names who earn more than their manager.
+b) Give the name of the managers who have no employee under his supervision from the same
+city as of him.
+c) Give the name of the manager who has maximum number of employees under his
+supervision.
+d) Give the name of the employees who have been hired in the year 2006.
+e) Give the name of the city where no manager is located.
+
+Solution:-
+
+CREATE DATABASE employeement;
+USE employeement;
+CREATE TABLE Employee (
+    empno INT PRIMARY KEY,
+    emp_name VARCHAR(100) NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL,
+    hiredate DATE NOT NULL,
+    city VARCHAR(100) NOT NULL
+);
+
+USE employeement;
+CREATE TABLE Department (
+    deptno INT PRIMARY KEY,
+    dname VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL
+);
+
+USE employeement;
+CREATE TABLE Manager (
+    mgrno INT PRIMARY KEY,
+    deptno INT,
+    manager_name VARCHAR(100) NOT NULL,
+    salary DECIMAL(10, 2) NOT NULL,
+    hiredate DATE NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    FOREIGN KEY (deptno) REFERENCES Department(deptno)
+);
+
+USE employeement;
+CREATE TABLE Empmgr (
+    empno INT,
+    mgrno INT,
+    PRIMARY KEY (empno, mgrno),
+    FOREIGN KEY (empno) REFERENCES Employee(empno),
+    FOREIGN KEY (mgrno) REFERENCES Manager(mgrno)
+);
+
+
+
+-- Insert sample data into Department table
+INSERT INTO Department (deptno, dname, city) VALUES
+(1, 'Human Resources', 'Metropolis'),
+(2, 'Finance', 'Gotham'),
+(3, 'IT', 'Star City'),
+(4, 'Marketing', 'Central City');
+
+-- Insert sample data into Employee table
+INSERT INTO Employee (empno, emp_name, salary, hiredate, city) VALUES
+(101, 'John Doe', 50000.00, '2020-01-15', 'Metropolis'),
+(102, 'Jane Smith', 60000.00, '2019-03-22', 'Gotham'),
+(103, 'Alice Brown', 55000.00, '2018-05-10', 'Star City'),
+(104, 'Bob White', 70000.00, '2017-11-30', 'Central City'),
+(105, 'Charlie Black', 52000.00, '2021-07-18', 'Metropolis');
+
+-- Insert sample data into Manager table
+INSERT INTO Manager (mgrno, deptno, manager_name, salary, hiredate, city) VALUES
+(201, 1, 'George King', 80000.00, '2015-02-20', 'Metropolis'),
+(202, 2, 'Nancy Queen', 85000.00, '2016-06-25', 'Gotham'),
+(203, 3, 'Oliver Prince', 90000.00, '2014-09-15', 'Star City'),
+(204, 4, 'Emma Duchess', 95000.00, '2013-12-05', 'Central City');
+
+-- Insert sample data into Empmgr table
+INSERT INTO Empmgr (empno, mgrno) VALUES
+(101, 201),
+(102, 202),
+(103, 203),
+(104, 204),
+(105, 201);
+
+
+a) USE employeement;
+SELECT emp_name FROM Employee WHERE salary > (SELECT salary FROM Manager WHERE mgrno = ( SELECT mgrno FROM Empmgr WHERE empno = Employee.empno));
+
+b) USE employeement;
+SELECT manager_name FROM Manager WHERE city NOT IN (SELECT city FROM Employee WHERE empno IN ( SELECT empno FROM Empmgr WHERE mgrno = Manager.mgrno));
+
+c) USE employeement;
+SELECT manager_name FROM Manager WHERE mgrno = (SELECT mgrno
+    FROM Empmgr
+    GROUP BY mgrno
+    ORDER BY COUNT(empno) DESC
+    LIMIT 1);
+
+d) USE employeement;
+SELECT emp_name FROM Employee WHERE hiredate = "2006%";
+
+e) USE employeement;
+SELECT DISTINCT city FROM Department WHERE city NOT IN ( SELECT city FROM Manager);
