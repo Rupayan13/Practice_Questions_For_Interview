@@ -305,3 +305,12 @@ SELECT city FROM Employee GROUP BY city ORDER BY COUNT(empno) DESC LIMIT 1;
 
 c) 
 
+d) USE projects;
+SELECT pname FROM Project WHERE pno IN (SELECT pno FROM Works WHERE empno NOT IN (SELECT empno FROM Employee WHERE empname = "S%"));
+
+e) USE projects;
+SELECT pname FROM Project WHERE pno = (SELECT pno FROM Uses GROUP BY partno ORDER BY COUNT(pno) DESC LIMIT 1);
+
+f) USE projects;
+SELECT pname FROM Project WHERE pno IN (SELECT pno FROM Uses GROUP BY pno HAVING COUNT(partno)=3);
+
