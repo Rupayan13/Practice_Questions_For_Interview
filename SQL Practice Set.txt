@@ -49,7 +49,7 @@ USE shipping;
 INSERT INTO customer(cust_id, cust_name, annual_revenue, cust_type) VALUES 
 (100, "Rupayan Dirghangi", 37500, "manufacturer"), 
 (101, "Reshmi Dirghangi", 16870, "wholesaler"), 
-(102, "Subhomoy Das", 12, "retailer"), 
+(102, "Subhomoy Das", 12000, "retailer"), 
 (103, "Aditya Routh", 37500, "manufacturer");
 
 USE shipping;
@@ -192,3 +192,116 @@ SELECT emp_name FROM Employee WHERE hiredate = "2006%";
 
 e) USE employeement;
 SELECT DISTINCT city FROM Department WHERE city NOT IN ( SELECT city FROM Manager);
+
+
+3. Consider the following schema of a relational database:
+Employee (empno, empname, city)
+Project (pno, pname)
+Part (partno, part name, color)
+Use (pno, partno)
+Works (empno,pno)
+Create table through appropriate SQL commands. Define all integrity constraints and enter sufficient data.
+
+ Write SQL commands for the following queries.
+a) Give the name of the employees who are working on more than 1 project.
+b) Give the name of the city where the maximum employees are located.
+c) Give the part names, which are used in all the projects.
+d) Give the name of the projects in which no employees are working whose name start with ‘S’.
+e) Give the name of the project which use maximum red part
+f) Give the name of the projects, which has used exactly 3 parts
+
+Solution:-
+
+CREATE DATABASE projects;
+
+-- Creating Employee table
+USE projects;
+CREATE TABLE Employee (
+    empno INT PRIMARY KEY,
+    empname VARCHAR(100) NOT NULL,
+    city VARCHAR(100)
+);
+
+-- Creating Project table
+USE projects;
+CREATE TABLE Project (
+    pno INT PRIMARY KEY,
+    pname VARCHAR(100) NOT NULL
+);
+
+-- Creating Part table
+USE projects;
+CREATE TABLE Part (
+    partno INT PRIMARY KEY,
+    partname VARCHAR(100) NOT NULL,
+    color VARCHAR(50)
+);
+
+-- Creating Use table
+USE projects;
+CREATE TABLE Use (
+    pno INT,
+    partno INT,
+    PRIMARY KEY (pno, partno),
+    FOREIGN KEY (pno) REFERENCES Project(pno),
+    FOREIGN KEY (partno) REFERENCES Part(partno)
+);
+
+-- Creating Works table
+USE projects;
+CREATE TABLE Works (
+    empno INT,
+    pno INT,
+    PRIMARY KEY (empno, pno),
+    FOREIGN KEY (empno) REFERENCES Employee(empno),
+    FOREIGN KEY (pno) REFERENCES Project(pno)
+);
+
+
+
+-- Inserting data into Employee table
+USE projects;
+INSERT INTO Employee (empno, empname, city) VALUES
+(1, 'John Doe', 'New York'),
+(2, 'Jane Smith', 'Los Angeles'),
+(3, 'Jim Brown', 'Chicago');
+
+-- Inserting data into Project table
+USE projects;
+INSERT INTO Project (pno, pname) VALUES
+(101, 'Project A'),
+(102, 'Project B'),
+(103, 'Project C');
+
+-- Inserting data into Part table
+USE projects;
+INSERT INTO Part (partno, partname, color) VALUES
+(1001, 'Part X', 'Red'),
+(1002, 'Part Y', 'Blue'),
+(1003, 'Part Z', 'Green');
+
+-- Inserting data into Use table
+USE projects;
+INSERT INTO Use (pno, partno) VALUES
+(101, 1001),
+(102, 1002),
+(103, 1003),
+(101, 1003);
+
+-- Inserting data into Works table
+USE projects;
+INSERT INTO Works (empno, pno) VALUES
+(1, 101),
+(2, 102),
+(3, 103),
+(1, 103);
+
+
+a) USE projects;
+SELECT empname FROM Employee WHERE empno IN (SELECT empno FROM Works GROUP BY empno HAVING COUNT(pno) > 1 );
+
+b) USE projects;
+SELECT city FROM Employee GROUP BY city ORDER BY COUNT(empno) DESC LIMIT 1;
+
+c) 
+
